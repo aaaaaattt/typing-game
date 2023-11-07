@@ -12,69 +12,75 @@ let words = [];
 let wordIndex = 0;
 let startTime = Date.now();
 
+// grab UI items
 const quoteElement = document.getElementById("quote");
 const messageElement = document.getElementById("message");
 const typedValueElement = document.getElementById("typed-value");
 
-document.getElementById("start").addEventListener("click", () => {
-  //quotes 배열에서 인용문 무작위 선택
-  const quoteIndex = Math.floor(Math.random() * quotes.length); //인덱스에 들어갈 수라서 0~6 난수
+document.getElementById("start").addEventListener("click", function () {
+  // get a quote
+  const quoteIndex = Math.floor(Math.random() * quotes.length);
   const quote = quotes[quoteIndex];
-  //플레이어가 현재 입력하고 있는 단어를 추적할 수 있도록 quote를 words배열로 변환
+  // Put the quote into an array of words
   words = quote.split(" ");
-  //플레이어는 첫번째 단어부터 시작하므로, wordIndex는 0으로
+  // reset the word index for tracking
   wordIndex = 0;
 
-  //·UI설정 부분·
-
-  //span 요소 안에 각 단어를 포함하고 있는, spanWords 배열을 만듭니다.
+  // UI updates
+  // Create an array of span elements so we can set a class
   const spanWords = words.map(function (word) {
     return `<span>${word} </span>`;
   });
-  console.log(spanWords);
-
-  //배열을 join하여 quoteElement의 innerHTML로 갱신할 때 사용할 문자열을 만듭니다
+  // Convert into string and set as innerHTML on quote display
   quoteElement.innerHTML = spanWords.join("");
-
-  //첫 번째 span 요소의 classname을 highlight로 설정하여 노란색을 강조
+  // Highlight the first word
   quoteElement.childNodes[0].className = "highlight";
-  //innerText를 ''로 설정하여 messageElement로 정리
+  // Clear any prior messages
   messageElement.innerText = "";
 
-  //·텍스트 박스 설정·
-  //typedValueElement의 현재 value를 지우기
+  // Setup the textbox
+  // Clear the textbox
   typedValueElement.value = "";
-  //focus를 typedValueElement로 설정
+  // set focus
   typedValueElement.focus();
+  // set the event handler
 
-  StartTime = new Date().getTime();
+  // Start the timer
+  startTime = new Date().getTime();
 });
 
 typedValueElement.addEventListener("input", (e) => {
+  // Get the current word
   const currentWord = words[wordIndex];
+  // get the current value
   const typedValue = typedValueElement.value;
 
-  if (typedValue === currentWord && wordIndex && words.length - 1) {
-    //1. 인용문 완성된 경우
+  if (typedValue === currentWord && wordIndex === words.length - 1) {
+    // end of quote
+    // Display success
     const elapsedTime = new Date().getTime() - startTime;
     const message = `CONGRATULATIONS! You finished in ${
       elapsedTime / 1000
     } seconds.`;
     messageElement.innerText = message;
   } else if (typedValue.endsWith(" ") && typedValue.trim() === currentWord) {
-    //2. 단어 완성된 경우
+    // end of word
+    // clear the typedValueElement for the new word
     typedValueElement.value = "";
+    // move to the next word
     wordIndex++;
+    // reset the class name for all elements in quote
     for (const wordElement of quoteElement.childNodes) {
       wordElement.className = "";
     }
+    // highlight the new word
     quoteElement.childNodes[wordIndex].className = "highlight";
   } else if (currentWord.startsWith(typedValue)) {
-    console.log(typedValueElement);
+    // currently correct
+    // highlight the next word
     typedValueElement.className = "";
-    console.log(typedValueElement);
   } else {
-    //error state
+    // error state
     typedValueElement.className = "error";
   }
 });
